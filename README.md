@@ -8,7 +8,7 @@
 
 用浏览器带看商业空间、建筑、广场与展厅。即使空间还在筹开或改造，也可以先讲清入口、动线与使用场景，再让观众自由探索。
 
-An open toolkit for interactive 3D walkthroughs of retail, architecture, courtyards and exhibitions. Preview five viewpoints with no WebGL required, or open the live model to orbit the scene, inspect hotspots and change the atmosphere.
+An open toolkit for interactive 3D walkthroughs of retail, architecture, courtyards and exhibitions. Open straight into the live model with WebGL 2. Orbit the scene, explore hotspots, change the atmosphere and capture the current 3D view. A five-view visual guide is available without WebGL.
 
 ## 五幕导览 / Five views
 
@@ -18,7 +18,7 @@ An open toolkit for interactive 3D walkthroughs of retail, architecture, courtya
 | :---: | :---: |
 | [![从庭院侧上方俯瞰弧形退台与楼梯连接](docs/previews/terrace.webp)](https://jaycefan666.github.io/spatial-digital-showcase/) | [![从同一视角看公开模型的夜景与暖色灯光](docs/previews/night.webp)](https://jaycefan666.github.io/spatial-digital-showcase/) |
 
-**在线：** 进入 Demo 后，可切换或连续播放五幕预览，也可点「进入实时 3D」。实时 3D 支持拖动旋转、缩放、热点说明、日夜和季节切换。
+**在线：** 支持 WebGL 2 的浏览器会直接打开实时三维场景，可以旋转、缩放、切换日夜或季节，并点「截图」保存当前 3D 视角。「图文预览」可以独立查看或连续播放五幕画面；没有 WebGL 2 也能使用。
 
 **本地：** 下载并解压工具包，在支持 WebGL 2 的浏览器中打开 `docs/index.html`，或在仓库根目录运行：
 
@@ -27,6 +27,13 @@ python3 -m http.server 8000 --directory docs
 ```
 
 访问 `http://localhost:8000`。实时模型与五张预览均由仓库提供，无需账户、API 密钥或外部资源。
+
+## 项目案例 / Project reference
+
+![夜景效果图：暖光台阶、树木与绿化](docs/previews/case-night.webp)
+
+案例效果图由用户提供，经许可展示。它不是上方公开模型的渲染，也不包含在代码 MIT 许可中。  
+Reference rendering provided by the project owner and shown with permission. Not a capture of the public demo or covered by the code’s MIT license.
 
 ## 在新项目中复用
 
@@ -62,4 +69,4 @@ python3 scripts/prepublish.py
 
 **检索关键词**　空间数字展示、三维空间漫游、数字带看、商业空间可视化、建筑交互展示、展览导览、热点标注、WebGL、Three.js、3D walkthrough、guided tour。
 
-代码和工具包使用 MIT 许可。Three.js 与 OrbitControls 的版权和 MIT 许可随 `docs/vendor.js` 提供。
+代码和工具包使用 MIT 许可；上面的项目案例效果图不在 MIT 许可范围内。Three.js 与 OrbitControls 的版权和 MIT 许可随 `docs/vendor.js` 提供。

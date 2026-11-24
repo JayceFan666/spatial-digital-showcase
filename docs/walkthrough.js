@@ -29,10 +29,10 @@ nodes.forEach((n,i)=>{const b=document.createElement('button');b.className='node
 $('sources').onclick = () => $('sourceDialog').showModal();
 let atmosphereTween=null,foliageTween=null;
 let terraceWalkRoute=[];
-let scene,camera,renderer,controls,roofGroup,greenGroup,ambient,sun,fill,lightMats=[],lamps=[],targetTween=null;
+let scene,camera,renderer,controls,liveResizeObserver,roofGroup,greenGroup,ambient,sun,fill,lightMats=[],lamps=[],targetTween=null;
 const {THREE:T,OrbitControls}=window.HomeVendor;
 const mat=(c,extra={})=>new T.MeshStandardMaterial({color:c,roughness:.8,...extra});
-const M={stone:mat('#c9c8b8'),edge:mat('#8a9383'),cream:mat('#dddccc'),dark:mat('#2b3933'),wood:mat('#a2784c'),soil:mat('#35422b'),leaf:mat('#4e7241'),leaf2:mat('#759052'),leaf3:mat('#93a765'),glass:mat('#a8bab3',{metalness:.1,roughness:.25,transparent:true,opacity:.64}),pave:null,bronze:mat('#746449'),chair:mat('#31585b'),light:mat('#fff3c9',{emissive:'#ffda91',emissiveIntensity:.15})};lightMats.push(M.light);
+const M={stone:mat('#d3c8ae'),edge:mat('#9ca890'),cream:mat('#e7dfca'),dark:mat('#3c4b40'),wood:mat('#aa7653'),soil:mat('#35422b'),leaf:mat('#557d4f'),leaf2:mat('#83a165'),leaf3:mat('#a3ad63'),glass:mat('#c1d1c0',{metalness:.1,roughness:.25,transparent:true,opacity:.64}),pave:null,bronze:mat('#746449'),chair:mat('#31585b'),light:mat('#fff3c9',{emissive:'#ffda91',emissiveIntensity:.15})};lightMats.push(M.light);
 function mesh(geo,material,pos,parent=scene){const o=new T.Mesh(geo,material);if(pos)o.position.set(...pos);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function box(x,y,z,w,h,d,m,parent=scene){return mesh(new T.BoxGeometry(w,h,d),m,[x,y,z],parent)}
 function rod(a,b,r,m,parent=scene){const va=new T.Vector3(...a),vb=new T.Vector3(...b),delta=vb.clone().sub(va);const o=mesh(new T.CylinderGeometry(r,r,delta.length(),6),m,va.add(vb).multiplyScalar(.5).toArray(),parent);o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),delta.normalize());return o}
@@ -57,8 +57,8 @@ function planter(x,z,w,d,y=0,treeHere=false){box(x,y+.4,z,w,.8,d,M.cream);box(x,
 function table(x,z){mesh(new T.CylinderGeometry(.56,.56,.09,20),M.wood,[x,.79,z]);rod([x,0,z],[x,.75,z],.05,M.dark);for(let j=0;j<3;j++){let a=j*Math.PI*2/3+.4,xx=x+Math.cos(a)*1,zz=z+Math.sin(a)*1;const g=new T.Group();g.position.set(xx,0,zz);g.rotation.y=-a;scene.add(g);box(0,.46,0,.42,.09,.44,M.chair,g);box(.17,.74,0,.08,.46,.44,M.chair,g);for(const k of [-1,1])for(const l of [-1,1])rod([k*.15,.43,l*.15],[k*.19,0,l*.19],.018,M.dark,g)}}
 function oldPerson(x,z,color='#d8c6ab'){const m=mat(color);mesh(new T.SphereGeometry(.14,10,8),M.cream,[x,1.6,z]);mesh(new T.CylinderGeometry(.16,.19,.65,8),m,[x,1.1,z]);for(const a of [-.1,.1])rod([x+a,.8,z],[x+a,.07,z+.03],.055,M.dark);}
 function steps(a,b,width,rise=upperLevel,count=36){const dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz),angle=-Math.atan2(dz,dx);for(let i=0;i<count;i++){let f=(i+.5)/count,h=(i+1)/count*rise;const o=box(a[0]+dx*f,h/2,a[1]+dz*f,len/count+.015,h,width,M.stone);o.rotation.y=angle;const ll=box(a[0]+dx*f,h+.015,a[1]+dz*f,.06,.025,width*.75,M.light);ll.rotation.y=angle}const nx=-dz/len*width/2,nz=dx/len*width/2;for(let s of [-1,1]){rod([a[0]+nx*s,1,a[1]+nz*s],[b[0]+nx*s,rise+1,b[1]+nz*s],.04,M.dark);for(let j=0;j<=9;j++){let f=j/9;rod([a[0]+dx*f+nx*s,rise*f,a[1]+dz*f+nz*s],[a[0]+dx*f+nx*s,rise*f+1,a[1]+dz*f+nz*s],.024,M.dark)}}}
-function init(){scene=new T.Scene();scene.background=null;renderer=new T.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.3;$('scene').append(renderer.domElement);renderer.domElement.tabIndex=0;renderer.domElement.setAttribute('aria-label','下沉广场立体模型。拖动旋转，滚轮缩放；也可使用预设视角按钮。');camera=new T.PerspectiveCamera(38,1,.1,350);controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;controls.maxPolarAngle=Math.PI/2-.03;controls.minDistance=15;controls.maxDistance=220;controls.target.set(0,1,0);controls.addEventListener('start',()=>{targetTween=null;if(typeof endTour==='function'&&document.body.classList.contains('touring'))endTour(false)});
-ambient=new T.HemisphereLight('#fff8e8','#879787',2.4);scene.add(ambient);sun=new T.DirectionalLight('#fff3db',3.2);sun.position.set(-18,45,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-48,right:48,top:38,bottom:-38,near:1,far:120});sun.shadow.normalBias=.05;scene.add(sun);fill=new T.DirectionalLight('#deebff',1);fill.position.set(30,20,-20);scene.add(fill);
+function init(){scene=new T.Scene();scene.background=null;renderer=new T.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.49;$('scene').append(renderer.domElement);renderer.domElement.tabIndex=0;renderer.domElement.setAttribute('aria-label','下沉广场立体模型。拖动旋转，滚轮缩放；也可使用预设视角按钮。');camera=new T.PerspectiveCamera(38,1,.1,350);controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;controls.maxPolarAngle=Math.PI/2-.03;controls.minDistance=15;controls.maxDistance=220;controls.target.set(0,1,0);controls.addEventListener('start',()=>{targetTween=null;if(typeof endTour==='function'&&document.body.classList.contains('touring'))endTour(false)});
+ambient=new T.HemisphereLight('#fcfff8','#bfc6ab',2.95);scene.add(ambient);sun=new T.DirectionalLight('#fff6e2',3.5);sun.position.set(-18,45,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-48,right:48,top:38,bottom:-38,near:1,far:120});sun.shadow.normalBias=.05;scene.add(sun);fill=new T.DirectionalLight('#e8f3ff',1.25);fill.position.set(30,20,-20);scene.add(fill);
 roofGroup=new T.Group();greenGroup=new T.Group();scene.add(roofGroup,greenGroup);
 const tc=document.createElement('canvas');tc.width=512;tc.height=512;const tx=tc.getContext('2d');tx.fillStyle='#c9c9bd';tx.fillRect(0,0,512,512);for(let yy=0;yy<8;yy++)for(let xx=0;xx<8;xx++){tx.fillStyle=['#c4c4b9','#ccccc1','#bdbeb3','#d1d0c5'][(xx*3+yy*5)%4];tx.fillRect(xx*64+(yy%2)*32,yy*64,62,62)}const texture=new T.CanvasTexture(tc);texture.wrapS=texture.wrapT=T.RepeatWrapping;texture.repeat.set(.19,.19);texture.colorSpace=T.SRGBColorSpace;M.pave=mat('#ffffff',{map:texture});
 slab(floor,-.65,.65,M.pave);slab(floor,-1.05,.4,M.dark);
@@ -102,12 +102,12 @@ nodes[2].p = [1, 2.5, 1];
 nodes[3].p = [10, 3, -10];
 nodes[4].p = [-13, 1, 3];
 nodes[5].p = [-21, 6.8, -5];
-buildContext();setSeason('summer');new ResizeObserver(resize).observe($('scene'));resize();view('overview',false);animate();}
+buildContext();setSeason('summer');liveResizeObserver=new ResizeObserver(resize);liveResizeObserver.observe($('scene'));resize();view('overview',false);animate();}
 function resize(){if(!renderer)return;const r=$('scene').getBoundingClientRect();renderer.setSize(r.width,r.height);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
-function view(key,smooth=true){let mobile=innerWidth<720;let fit=mobile?Math.max(1,1.4/camera.aspect):1;const map={overview:{p:[(contextMode?38:29)*fit,(contextMode?50:41)*fit,(contextMode?68:54)*fit],t:[2,4.5,0]},front:{p:[3,14*fit,47*fit],t:[-2,2,0]},shops:{p:[21*fit,10*fit,28*fit],t:[8,2,-6]},terrace:{p:[32*fit,23*fit,-28*fit],t:[19,3.6,0]},top:{p:[0,90*fit,.3],t:[0,0,0]}};const v=map[key];document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===key));if(!camera)return;if(smooth)targetTween={start:performance.now(),a:camera.position.clone(),b:new T.Vector3(...v.p),ta:controls.target.clone(),tb:new T.Vector3(...v.t)};else{camera.position.set(...v.p);controls.target.set(...v.t);controls.update()}}
+function view(key,smooth=true){if(!camera)return;const fit=Math.max(1,1.54/camera.aspect);const map={overview:{p:[(contextMode?38:30)*fit,(contextMode?50:38)*fit,(contextMode?68:51)*fit],t:[0,2.6,0]},front:{p:[3,14*fit,47*fit],t:[-2,2,0]},shops:{p:[21*fit,10*fit,28*fit],t:[8,2,-6]},terrace:{p:[32*fit,23*fit,-28*fit],t:[19,3.6,0]},top:{p:[0,90*fit,.3],t:[0,0,0]}};const v=map[key];document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===key));if(smooth)targetTween={start:performance.now(),a:camera.position.clone(),b:new T.Vector3(...v.p),ta:controls.target.clone(),tb:new T.Vector3(...v.t)};else{camera.position.set(...v.p);controls.target.set(...v.t);controls.update()}}
 let frameRequest=null;
 function animate(now=0){if(!isLive)return;frameRequest=requestAnimationFrame(animate);const dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;if(flowing)flowTime+=dt;updateWalkers();if(targetTween){let t=Math.min((performance.now()-targetTween.start)/(targetTween.duration||1400),1);t=t*t*(3-2*t);camera.position.lerpVectors(targetTween.a,targetTween.b,t);controls.target.lerpVectors(targetTween.ta,targetTween.tb,t);if(t>=1)targetTween=null}updateAtmosphere();controls.update();renderer.render(scene,camera);const r=$('scene').getBoundingClientRect();nodes.forEach(n=>{const v=new T.Vector3(...n.p).project(camera);n.el.style.left=(v.x*.5+.5)*r.width+'px';n.el.style.top=(-v.y*.5+.5)*r.height+'px';n.el.style.display=$('hotspots').checked&&v.z<1&&Math.abs(v.x)<.95&&Math.abs(v.y)<.9?'block':'none'})}
-function lighting(value){night=value;document.body.classList.toggle('night',night);$('day').classList.toggle('active',!night);$('night').classList.toggle('active',night);if(ambient){ambient.intensity=night?.7:2.4;sun.intensity=night?.2:3.2;fill.intensity=night?.4:1;M.glass.color.set(night?'#b9a985':'#a8bab3');M.glass.emissive.set(night?'#8a6f36':'#000000');M.glass.emissiveIntensity=night?.35:0;M.light.emissiveIntensity=night?2:.15;lamps.forEach(l=>l.intensity=night?25:0);renderer.toneMappingExposure=night?1.15:1.3;sun.color.set(season==='autumn'?'#ffe0ad':season==='winter'?'#e3eeff':'#fff3db')}}
+function lighting(value){night=value;document.body.classList.toggle('night',night);$('day').classList.toggle('active',!night);$('night').classList.toggle('active',night);if(ambient){ambient.intensity=night?.86:2.95;sun.intensity=night?.33:3.5;fill.intensity=night?.55:1.25;M.glass.color.set(night?'#b9a985':'#c1d1c0');M.glass.emissive.set(night?'#8a6f36':'#000000');M.glass.emissiveIntensity=night?.35:0;M.light.emissiveIntensity=night?2:.15;lamps.forEach(l=>l.intensity=night?25:0);renderer.toneMappingExposure=night?1.26:1.49;sun.color.set(season==='autumn'?'#ffe0ad':season==='winter'?'#e3eeff':'#fff6e2')}}
 $('day').onclick=()=>lighting(false);$('night').onclick=()=>lighting(true);$('roof').onchange=e=>{if(roofGroup)roofGroup.visible=e.target.checked};$('green').onchange=e=>{if(greenGroup)greenGroup.visible=e.target.checked};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>view(b.dataset.view));$('reset').onclick=()=>view('overview');
 $('contextMode').onclick=()=>setContext(true);
 $('modelMode').onclick=()=>setContext(false);
@@ -149,7 +149,7 @@ sign('茶饮',te[3],te.at(-1),3.08,contextGroup);
 nodes[6].p=[(outer[9][0]+outer[11][0])/2,3,(outer[9][1]+outer[11][1])/2];
 for(let i=0;i<36;i++){const o=mesh(new T.IcosahedronGeometry(.14,0),mat('#efbdd0'),[-9+(rand()-.5)*2,1.12,(rand()-.5)*1.8],seasonGroup);o.userData.flower=true;}
 }
-function setSeason(key){season=key;document.body.dataset.season=key;const colors={spring:['#739557','#a8b879','#c3cb88'],summer:['#4e7241','#759052','#93a765'],autumn:['#956344','#c48a43','#dcb667'],winter:['#68766b','#899285','#bac0b2']}[key];[M.leaf,M.leaf2,M.leaf3].forEach((m,i)=>m.color.set(colors[i]));if(seasonGroup)seasonGroup.visible=key==='spring';document.querySelectorAll('button[data-season]').forEach(b=>b.classList.toggle('active',b.dataset.season===key));$('seasonText').textContent={spring:'春 · 嫩叶与花色',summer:'夏 · 浓荫庭院',autumn:'秋 · 金棕叶色',winter:'冬 · 清冷常绿'}[key]+'｜季节与人流为展示示意';if(sun&&!night)sun.color.set(key==='autumn'?'#ffe0ad':key==='winter'?'#e3eeff':'#fff3db')}
+function setSeason(key){season=key;document.body.dataset.season=key;const colors={spring:['#739557','#a8b879','#c3cb88'],summer:['#557d4f','#83a165','#a3ad63'],autumn:['#956344','#c48a43','#dcb667'],winter:['#68766b','#899285','#bac0b2']}[key];[M.leaf,M.leaf2,M.leaf3].forEach((m,i)=>m.color.set(colors[i]));if(seasonGroup)seasonGroup.visible=key==='spring';document.querySelectorAll('button[data-season]').forEach(b=>b.classList.toggle('active',b.dataset.season===key));$('seasonText').textContent={spring:'春 · 嫩叶与花色',summer:'夏 · 浓荫庭院',autumn:'秋 · 金棕叶色',winter:'冬 · 清冷常绿'}[key]+'｜季节与人流为展示示意';if(sun&&!night)sun.color.set(key==='autumn'?'#ffe0ad':key==='winter'?'#e3eeff':'#fff6e2')}
 function person(color){
 const group=new T.Group();scene.add(group);const skin=mat('#d4b798'),cloth=mat(color);
 mesh(new T.SphereGeometry(.15,10,8),skin,[0,1.62,0],group);mesh(new T.CylinderGeometry(.19,.16,.65,8),cloth,[0,1.14,0],group);
@@ -212,7 +212,7 @@ $('settingsToggle').onclick=()=>{const open=$('settingsPanel').hidden;closeDetai
 function setHero(c){const block=document.querySelector('.view-title');block.classList.remove('changing');$('heroTitle').innerHTML=c.title;$('heroCopy').textContent=c.copy;$('heroEyebrow').textContent=c.eyebrow;void block.offsetWidth;block.classList.add('changing');}
 function scheduleTour(){clearTimeout(tourTimer);if(!tourPaused&&document.body.classList.contains('touring'))tourTimer=setTimeout(()=>{if(tourStep<chapters.length-1)showChapter(tourStep+1);else{tourPaused=true;$('tourPause').textContent='重播';}},6500);}
 function showChapter(index){tourStep=Math.max(0,Math.min(4,index));const c=chapters[tourStep];setHero(c);$('tourCounter').textContent='0'+(tourStep+1)+' / 05';$('tourPrev').disabled=tourStep===0;$('tourNext').disabled=tourStep===4;lighting(tourStep===4);view(c.view,!reduceMotion);if(targetTween)targetTween.duration=reduceMotion?1:2400;scheduleTour();}
-function endTour(reset=true){if(!document.body.classList.contains('touring'))return;clearTimeout(tourTimer);document.body.classList.remove('touring');$('tourBar').hidden=true;lighting(tourWasNight);setHero({title:'向下，<br>走进花园。',copy:'城市的热闹之下，留一处慢下来的地方。',eyebrow:'A GARDEN, ONE LEVEL BELOW.'});if(reset)view('overview');}
+function endTour(reset=true){if(!document.body.classList.contains('touring'))return;clearTimeout(tourTimer);document.body.classList.remove('touring');$('tourBar').hidden=true;lighting(tourWasNight);setHero({title:'向下，<br>走进花园。',copy:'转动模型看庭院、楼梯和退台，也可沿五幕导览查看空间动线。',eyebrow:'实时 3D · 下沉庭院'});if(reset)view('overview');}
 $('startTour').onclick=()=>{if(!camera)return;closeDetails();$('settingsPanel').hidden=true;$('settingsToggle').setAttribute('aria-expanded','false');tourWasNight=night;document.body.classList.add('touring');$('tourBar').hidden=false;tourPaused=reduceMotion;$('tourPause').textContent=tourPaused?'播放':'暂停';showChapter(0);};
 $('tourNext').onclick=()=>showChapter(tourStep+1);$('tourPrev').onclick=()=>showChapter(tourStep-1);$('tourEnd').onclick=()=>endTour(false);
 $('tourPause').onclick=()=>{if($('tourPause').textContent==='重播'){tourPaused=false;$('tourPause').textContent='暂停';showChapter(0);return;}tourPaused=!tourPaused;$('tourPause').textContent=tourPaused?'播放':'暂停';scheduleTour();};
@@ -238,7 +238,7 @@ let previewIndex=0,previewTimer=null;
 function selectPreview(i){
  previewIndex=i;
  const [file,title,caption,alt]=previews[i];
- $('previewImage').src='previews/'+file+'.webp';$('previewImage').alt=alt;
+ $('previewImage').src='previews/'+file+'.webp?v=live-light-1';$('previewImage').alt=alt;
  const image=$('previewImage');image.classList.remove('preview-change');void image.offsetWidth;image.classList.add('preview-change');
  $('previewTitle').textContent=title;$('previewCaption').textContent=caption;
  $('previewTag').textContent='0'+(i+1)+' / 05';
@@ -256,39 +256,73 @@ $('playPreview').addEventListener('click',()=>{
  $('playPreview').textContent='Ⅱ 暂停预览';$('playPreview').setAttribute('aria-pressed','true');
  $('previewDescription').setAttribute('aria-live','off');selectPreview(0);
  // Prefetch only after opting into the sequence.
- previews.slice(1).forEach(([file])=>{const asset=new Image();asset.src='previews/'+file+'.webp';});
+ previews.slice(1).forEach(([file])=>{const asset=new Image();asset.src='previews/'+file+'.webp?v=live-light-1';});
  previewTimer=setInterval(()=>{if(previewIndex===previews.length-1){stopPreview();return;}selectPreview(previewIndex+1);},2200);
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPreview()});
 
 let isLive=false,liveReady=false;
-function exitLive(){
+let initialFrame;
+function exitLive({focus=true}={}){
  if(!isLive)return;
  if(liveReady){endTour(false);closeDetails();$('settingsPanel').hidden=true;$('settingsToggle').setAttribute('aria-expanded','false');}
  isLive=false;cancelAnimationFrame(frameRequest);frameRequest=null;document.body.classList.remove('live-view','night');
- $('liveShell').hidden=true;$('showcase').hidden=false;$('enter3d').focus();
+ $('liveShell').hidden=true;$('showcase').hidden=false;if(focus)$('enter3d').focus();
 }
-$('exit3d').addEventListener('click',exitLive);
-$('enter3d').addEventListener('click',()=>{
+function graphicsUnavailable(reason, focus){
+ // End an active tour before dropping the renderer it uses.
+ exitLive({focus});
+ liveResizeObserver?.disconnect();liveResizeObserver=null;
+ renderer?.dispose();controls?.dispose?.();$('scene').textContent='';
+ renderer=null;camera=null;controls=null;ambient=null;sun=null;fill=null;liveReady=false;
+ walkers=[];lamps=[];flowTime=0;targetTween=null;atmosphereTween=null;foliageTween=null;
+ $('graphicsStatus').textContent='当前浏览器未能启动实时 3D，仍可在下方切换五幕导览。';
+ $('graphicsStatus').hidden=false;
+ console.warn('3D unavailable:',reason);
+}
+function enterLive({focus=false}={}){
  if(isLive)return;
+ if(initialFrame!=null){cancelAnimationFrame(initialFrame);initialFrame=null;}
  stopPreview();isLive=true;document.body.classList.add('live-view');$('showcase').hidden=true;$('liveShell').hidden=false;
  try{
   if(!liveReady){
+   // A detached probe avoids the full scene construction on unsupported browsers.
    const probe=document.createElement('canvas').getContext('webgl2');
    if(!probe)throw new Error('This browser does not expose WebGL 2.');
    probe.getExtension('WEBGL_lose_context')?.loseContext();
    init();liveReady=true;
+   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();graphicsUnavailable('WebGL context lost',false);});
   }else{
    document.body.classList.toggle('night',night);resize();frameRequest=requestAnimationFrame(animate);
   }
-  $('graphicsStatus').hidden=true;$('exit3d').focus();
+  $('graphicsStatus').hidden=true;if(focus)$('exit3d').focus();
  }catch(error){
-  renderer?.dispose();$('scene').textContent='';renderer=null;camera=null;controls=null;liveReady=false;exitLive();
-  $('graphicsStatus').textContent='当前浏览器未能启动实时 3D，仍可在下方切换五幕导览。';
-  $('graphicsStatus').hidden=false;
-  console.warn('3D unavailable:',error.message);
+  graphicsUnavailable(error.message,focus);
  }
+}
+$('exit3d').addEventListener('click',()=>exitLive());
+$('enter3d').addEventListener('click',()=>enterLive({focus:true}));
+$('captureShot').addEventListener('click',()=>{
+ if(!liveReady||!isLive)return;
+ renderer.render(scene,camera);
+ const source=renderer.domElement, image=document.createElement('canvas');
+ image.width=source.width;image.height=source.height;
+ const context=image.getContext('2d');if(!context)return;
+ const backdrop=context.createLinearGradient(0,0,image.width,image.height);
+ backdrop.addColorStop(0,night?'#383f38':'#fffdf6');
+ backdrop.addColorStop(1,night?'#111d1a':'#dce8dc');
+ context.fillStyle=backdrop;context.fillRect(0,0,image.width,image.height);
+ context.drawImage(source,0,0);
+ const label=night?'night':'day';
+ image.toBlob(png=>{
+  if(!png)return;
+  const url=URL.createObjectURL(png), link=document.createElement('a');
+  link.href=url;link.download='courtyard-3d-'+label+'.png';link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ },'image/png');
 });
+// Let the static model poster paint before attempting the initial GPU frame.
+if(location.hash!=='#case-reference')initialFrame=requestAnimationFrame(()=>{initialFrame=requestAnimationFrame(()=>{initialFrame=null;enterLive();});});
 
 const instantLighting=lighting;lighting=function(value){if(!ambient || !sun || !fill){instantLighting(value);return;}const props=[[ambient,'intensity'],[sun,'intensity'],[fill,'intensity'],[renderer,'toneMappingExposure'],[M.light,'emissiveIntensity'],[M.glass,'emissiveIntensity'],...lamps.map(l=>[l,'intensity'])];const before=props.map(([o,k])=>o[k]);const colors=[M.glass.color,M.glass.emissive,sun.color],old=colors.map(c=>c.clone());instantLighting(value);if(reduceMotion)return;atmosphereTween={start:performance.now(),values:props.map(([o,k],i)=>{const b=o[k];o[k]=before[i];return[o,k,before[i],b]}),colors:colors.map((c,i)=>{const b=c.clone();c.copy(old[i]);return[c,old[i],b]})};};
 const instantSeason=setSeason;setSeason=function(key){const mats=[M.leaf,M.leaf2,M.leaf3],before=mats.map(m=>m.color.clone());instantSeason(key);if(!reduceMotion)foliageTween={start:performance.now(),items:mats.map((m,i)=>{const b=m.color.clone();m.color.copy(before[i]);return[m,before[i],b]})};};

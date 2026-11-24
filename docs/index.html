@@ -1,5 +1,5 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>空间数字展示与三维漫游 · Spatial Digital Showcase</title><link rel="stylesheet" href="style.css?v=1d0fd8d">
-<meta property="og:image" content="https://jaycefan666.github.io/spatial-digital-showcase/previews/overview.webp">
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>空间数字展示与三维漫游 · Spatial Digital Showcase</title><link rel="stylesheet" href="style.css?v=live-light-1">
+<meta property="og:image" content="https://jaycefan666.github.io/spatial-digital-showcase/previews/overview.webp?v=live-light-1">
 <meta name="description" content="空间数字展示与三维漫游。浏览下沉庭院的五幕导览、交互点位与昼夜氛围。"></head><body>
 <main id="showcase" class="showcase">
   <div class="show-nav">
@@ -18,7 +18,7 @@
     </div>
     <figure class="show-figure">
       <div class="show-imagewrap">
-        <img id="previewImage" src="previews/overview.webp" width="1280" height="760" alt="下沉庭院公开模型的日景鸟瞰，显示楼梯、种植和下沉商业界面" fetchpriority="high">
+        <img id="previewImage" src="previews/overview.webp?v=live-light-1" width="1280" height="760" alt="下沉庭院公开模型的日景鸟瞰，显示楼梯、种植和下沉商业界面" fetchpriority="high">
         <span class="show-imagebadge">公 开 模 型 · 导 览 预 览</span>
       </div>
       <figcaption id="previewDescription" aria-live="polite"><span id="previewTag">01 / 05</span><div><strong id="previewTitle">庭院全景</strong><span id="previewCaption">从上层看清下沉庭院的整体轮廓与周边关系。</span></div></figcaption>
@@ -31,23 +31,27 @@
     <button type="button" class="show-chapter" data-preview="3" aria-pressed="false"><span>04</span> 外摆</button>
     <button type="button" class="show-chapter" data-preview="4" aria-pressed="false"><span>05</span> 夜景</button>
   </nav>
+  <section id="case-reference" class="show-case" aria-labelledby="caseTitle">
+    <div class="show-case-text"><p class="show-kicker"><span></span> PROJECT REFERENCE</p><h2 id="caseTitle">楼梯与绿化的夜景</h2><p>看暖光如何勾勒台阶，绿化怎样在夜间形成停留的边界。这张案例效果图与上方的公开三维模型是两种不同的呈现。</p></div>
+    <figure class="show-case-image"><img src="previews/case-night.webp" width="1440" height="810" alt="项目夜景效果图：带灯光的台阶、树木和沿边绿化" loading="lazy"><figcaption>案例效果图 · 用户提供，经许可展示。该图不包含在代码 MIT 许可中。</figcaption></figure>
+  </section>
 </main>
 <div id="liveShell" hidden>
 
-<header><div><div class="wordmark">COURTYARD<span></span></div><small>空间数字展示与漫游</small></div><nav class="header-actions"><button id="exit3d" type="button">返回预览</button><button id="explore" aria-expanded="false">探索空间 ↗</button><button id="settingsToggle" class="outline" aria-expanded="false">氛围设置</button></nav></header>
+<header><div><div class="wordmark">COURTYARD<span></span></div><small>Spatial Digital Showcase · 数字空间漫游</small></div><nav class="header-actions" aria-label="实时模型工具"><button id="exit3d" type="button">图文预览</button><a class="live-download" href="https://github.com/JayceFan666/spatial-digital-showcase/archive/refs/heads/main.zip">下载 <span aria-hidden="true">↓</span></a><button id="explore" aria-expanded="false">探索空间 ↗</button><button id="settingsToggle" class="outline" aria-expanded="false">氛围设置</button></nav></header>
 <main class="layout"><section class="stage" aria-label="下沉庭院三维空间"><div id="scene"></div><div id="pins"></div>
-<div class="view-title"><div class="eyebrow" id="heroEyebrow">A GARDEN, ONE LEVEL BELOW.</div><h1 id="heroTitle">向下，<br>走进花园。</h1><p id="heroCopy">城市的热闹之下，<br>留一处慢下来的地方。</p><div class="hero-actions"><button id="startTour" class="primary">开始空间导览 ↗</button></div></div>
+<div class="view-title"><div class="eyebrow" id="heroEyebrow">实时 3D · 下沉庭院</div><h1 id="heroTitle">向下，<br>走进花园。</h1><p id="heroCopy">转动模型看庭院、楼梯和退台，也可沿五幕导览查看空间动线。</p><div class="hero-actions"><button id="startTour" class="primary">开始空间导览 ↗</button></div></div>
 <div class="topbar"><div class="segmented"><button id="modelMode" class="active">庭院</button><button id="contextMode">周边商业</button></div><div class="segmented"><button id="day" class="active">日</button><button id="night">夜</button></div></div>
 
-<div class="mobileHint">拖动旋转 · 缩放探索 · 点选空间节点</div>
-<div class="bottom"><div class="footer-label">3D SPACE EXPERIENCE</div><div class="presets"><button data-view="overview" class="active">全景</button><button data-view="front">庭院</button><button data-view="terrace">退台</button><button data-view="top">俯视</button><button id="reset" aria-label="恢复初始视角">↺</button></div></div>
+<div class="mobileHint">拖动旋转 · 滚轮或双指缩放</div>
+<div class="bottom"><div class="footer-label">3D SPACE EXPERIENCE</div><div class="presets"><button data-view="overview" class="active">全景</button><button data-view="front">庭院</button><button data-view="terrace">退台</button><button data-view="top">俯视</button><button id="reset" aria-label="恢复初始视角">↺</button><button id="captureShot" type="button" title="将当前实时 3D 视角保存为 PNG">截图</button></div></div>
 <div class="tour-bar" id="tourBar" hidden><button id="tourPrev" aria-label="上一幕">←</button><output id="tourCounter">01 / 05</output><button id="tourNext" aria-label="下一幕">→</button><button id="tourPause">暂停</button><button id="tourEnd">自由探索 ↗</button></div>
 </section>
 <aside class="side" id="detailPanel" aria-label="空间详情" inert><button class="drawer-close" id="closeDetails" aria-label="关闭空间详情">×</button><div class="eyebrow">EXPLORE THE SPACE</div><h2 id="detailTitle">一座可以停留的庭院</h2><p id="detailLead" class="lead">从一处入口开始，发现庭院的不同层次。</p><div id="nodes" class="nodes"></div><div class="detail"><p id="detailText">选择点位，查看空间介绍。</p></div><div class="source"><button id="sources">展示说明</button></div></aside></main>
-<section class="settings" id="settingsPanel" aria-label="氛围设置" hidden><div class="eyebrow">SEASON & ATMOSPHERE</div><div class="seasons"><button data-season="spring">春</button><button data-season="summer" class="active">夏</button><button data-season="autumn">秋</button><button data-season="winter">冬</button></div><p id="seasonText"></p><label class="flow-row"><input id="flow" type="checkbox" checked> 行走人流</label><div class="toggles"><label><input id="roof" type="checkbox" checked> 顶棚</label><label><input id="green" type="checkbox" checked> 绿化</label><label><input id="hotspots" type="checkbox" checked> 点位</label></div><p id="contextInfo" hidden>周边门面用于展示空间关系。</p></section>
+<section class="settings" id="settingsPanel" aria-label="氛围设置" hidden><div class="eyebrow">SEASON & ATMOSPHERE</div><div class="seasons"><button data-season="spring">春</button><button data-season="summer" class="active">夏</button><button data-season="autumn">秋</button><button data-season="winter">冬</button></div><p id="seasonText"></p><label class="flow-row"><input id="flow" type="checkbox" checked> 行走人流</label><div class="toggles"><label><input id="roof" type="checkbox" checked> 顶棚</label><label><input id="green" type="checkbox" checked> 绿化</label><label><input id="hotspots" type="checkbox"> 点位</label></div><p id="contextInfo" hidden>周边门面用于展示空间关系。</p></section>
 <dialog id="sourceDialog"><button class="close" onclick="this.closest('dialog').close()">关闭 ×</button><h2>展示说明</h2><p>网页展示庭院、楼梯、退台与商业界面的关系。空间采用独立编写的展示几何，季节、人流及日夜灯光用于场景表达。</p></dialog>
 
 </div>
 <script src="vendor.js" defer></script>
-<script src="walkthrough.js?v=1d0fd8d" defer></script>
+<script src="walkthrough.js?v=live-light-1" defer></script>
 </body></html>
