@@ -20,6 +20,7 @@ PRIVATE_COMPONENTS = {"private", "internal", "source-drawings", "construction", 
 
 # Only the visually reviewed public renders and approved original viewport may bypass text scanning.
 PUBLIC_PREVIEW_HASHES = {
+    "docs/previews/live-viewport.webp": "3f14bff97773b210c2e27a6a9251071a1705d31c156c991fb533d2fa8d5e9680",
     "docs/previews/life.webp": "6e54c4ca8e0f3ea286f1824df67832daf5e1bc46ae00be30411be3e6011ec694",
     "docs/previews/night.webp": "8c251ef28fd4febe43ee56a35bf839e11dcd1c28f2d01ba0f47f928788582e68",
     "docs/previews/overview.webp": "386401ae77f78b11fe42b98c36abf2c9bfa3c5784d64019c9348ae4ebeb5040d",
