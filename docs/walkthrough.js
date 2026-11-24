@@ -1,3 +1,4 @@
+// Spatial Digital Showcase · @JayceFan666 · https://github.com/JayceFan666/spatial-digital-showcase
 const $=id=>document.getElementById(id);let contextMode=false,season='summer',flowing=true,walkers=[],flowTime=0,lastFrame=0,contextGroup,seasonGroup;let night=false,selected=-1;
 const nodes=[
 {name:'木色格栅顶棚',sub:'几何格构 · 光影层次',lead:'以木色几何格构延续庭院上方的空间界面。',text:'三角格栅与透光开口交织出丰富光影，为步行与停留提供舒适的空间。可关闭“顶棚”查看下层布局。',p:[-10,5.8,-5]},
@@ -23,8 +24,8 @@ nodes.push(
 {name:'周边铺位门面',sub:'庭院两侧 · 连续商业',lead:'沿庭院两侧展开的门面，将周边商业与广场相连。',text:'两侧门面围合庭院，形成连续的步行与消费界面。',p:[3,3,12]},
 {name:'连廊入口',sub:'一楼连廊 · 负一层小餐',lead:'上层连廊串联庭院，连廊入口连接负一层餐饮空间。',text:'上层步行连廊串联庭院，入口连接下层公共空间。',p:[0,5,-4]}
 );
-nodes[1].text='层层台阶与休息平台连接下层庭院和中层退台，沿途展开的花池提供绿荫与停留空间。';
-nodes.push({name:'退台打卡点',sub:'中层停留 · 俯瞰庭院',lead:'沿弧形退台漫步，在上下层之间停留，看见庭院的另一面。',text:'退台通过两端楼梯与上层连接，宽阔的平台可供观景、休憩和外摆，下方延续商业门面。',p:[20,4.6,4]});
+nodes[1].text='中庭楼梯连通庭院与中层退台，中途可在平坦的休息平台停留。西侧另有一座楼梯通向上层观景平台。';
+nodes.push({name:'退台打卡点',sub:'中层停留 · 俯瞰庭院',lead:'沿弧形退台漫步，在上下层之间停留，看见庭院的另一面。',text:'退台通过中庭楼梯与庭院连接，转入平整平台即可观景、休憩或外摆，下方延续商业门面。',p:[20,4.6,4]});
 nodes.forEach((n,i)=>{const b=document.createElement('button');b.className='node';b.dataset.node=i;b.innerHTML=`<span class="num">0${i+1}</span><span><strong>${["格栅顶棚","楼梯与平台","庭院绿化","商业界面","庭院外摆","上层平台","周边铺位","连廊入口","退台打卡点"][i]}</strong><small>${n.sub}</small></span>`;b.onclick=()=>choose(i);$('nodes').append(b);const pin=document.createElement('button');pin.className='hotspot';pin.dataset.node=i;pin.innerHTML=`<b>0${i+1}</b>${n.name}`;pin.onclick=()=>choose(i);$('pins').append(pin);n.el=pin;});
 $('sources').onclick = () => $('sourceDialog').showModal();
 let atmosphereTween=null,foliageTween=null;
@@ -44,7 +45,11 @@ const inner = [[-25, -7], [-21, -10], [-15, -11], [-10, -12],
   [-6, -12], [-2, -13], [3, -13], [8, -12], [13, -11], [18, -9],
   [23, -7], [27, -4], [29, 1]];
 const floor = [...outer, ...inner.slice(0, -1).reverse()];
-const terraceEdge = [[7, 9], [10, 10], [14, 10.5], [18, 10], [22, 8.5], [25, 6.5]];
+// The terrace edge steps forward just enough to form a square stair throat.
+const terraceLeft = [[7, 9], [10, 10], [11.35,10.169], [11.35,10]];
+const terraceMouth = [[11.35,10],[14.65,10]];
+const terraceRight = [[14.65,10], [14.65,10.419], [18,10], [22,8.5], [25,6.5]];
+const terraceEdge = [...terraceLeft, ...terraceRight];
 const terraceBack = [[7, 14], [11, 15], [16, 14], [21, 12.5], [24, 10], [26, 7]];
 const upperLevel = 6;
 const terraceLevel = 3;
@@ -56,7 +61,45 @@ function tree(x,z,y=0,r=1.6){const g=new T.Group();greenGroup.add(g);g.position.
 function planter(x,z,w,d,y=0,treeHere=false){box(x,y+.4,z,w,.8,d,M.cream);box(x,y+.83,z,w-.16,.12,d-.16,M.soil,greenGroup);for(let i=0;i<Math.ceil(w*d*2);i++){const xx=x+(rand()-.5)*(w-.25),zz=z+(rand()-.5)*(d-.25);const o=mesh(new T.IcosahedronGeometry(.3+rand()*.2,0),i%3?M.leaf:M.leaf2,[xx,y+1,zz],greenGroup);o.scale.y=.7}if(treeHere)tree(x,z,y+.8,1.6);box(x,y+.55,z+d/2+.23,w,.12,.45,M.wood)}
 function table(x,z){mesh(new T.CylinderGeometry(.56,.56,.09,20),M.wood,[x,.79,z]);rod([x,0,z],[x,.75,z],.05,M.dark);for(let j=0;j<3;j++){let a=j*Math.PI*2/3+.4,xx=x+Math.cos(a)*1,zz=z+Math.sin(a)*1;const g=new T.Group();g.position.set(xx,0,zz);g.rotation.y=-a;scene.add(g);box(0,.46,0,.42,.09,.44,M.chair,g);box(.17,.74,0,.08,.46,.44,M.chair,g);for(const k of [-1,1])for(const l of [-1,1])rod([k*.15,.43,l*.15],[k*.19,0,l*.19],.018,M.dark,g)}}
 function oldPerson(x,z,color='#d8c6ab'){const m=mat(color);mesh(new T.SphereGeometry(.14,10,8),M.cream,[x,1.6,z]);mesh(new T.CylinderGeometry(.16,.19,.65,8),m,[x,1.1,z]);for(const a of [-.1,.1])rod([x+a,.8,z],[x+a,.07,z+.03],.055,M.dark);}
-function steps(a,b,width,rise=upperLevel,count=36){const dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz),angle=-Math.atan2(dz,dx);for(let i=0;i<count;i++){let f=(i+.5)/count,h=(i+1)/count*rise;const o=box(a[0]+dx*f,h/2,a[1]+dz*f,len/count+.015,h,width,M.stone);o.rotation.y=angle;const ll=box(a[0]+dx*f,h+.015,a[1]+dz*f,.06,.025,width*.75,M.light);ll.rotation.y=angle}const nx=-dz/len*width/2,nz=dx/len*width/2;for(let s of [-1,1]){rod([a[0]+nx*s,1,a[1]+nz*s],[b[0]+nx*s,rise+1,b[1]+nz*s],.04,M.dark);for(let j=0;j<=9;j++){let f=j/9;rod([a[0]+dx*f+nx*s,rise*f,a[1]+dz*f+nz*s],[a[0]+dx*f+nx*s,rise*f+1,a[1]+dz*f+nz*s],.024,M.dark)}}}
+// Build from walkable entrance (z0) to walkable arrival (z1) with a real flat mid-landing.
+function stairLink({x,z0,z1,start,finish,width,landingLength,treads}){
+  const dir=Math.sign(z1-z0),run=Math.abs(z1-z0),rise=finish-start;
+  const flightRun=(run-landingLength)/2, tread=flightRun/treads, riser=rise/(2*treads);
+  const walk=[],left=x-width/2,right=x+width/2;
+  const stair=new T.Group();stair.name='stair-link';scene.add(stair);
+  const deck=(begin,end,height,name)=>{
+    const obj=box(x,height-.16,z0+dir*(begin+end)/2,width,.32,end-begin,M.stone,stair);
+    obj.name=name;return obj;
+  };
+  walk.push([x,start,z0]);
+  for(let f=0;f<2;f++){
+    const begin=f===0?0:flightRun+landingLength, floorY=start+f*rise/2;
+    for(let i=0;i<treads;i++){
+      const edge=begin+i*tread,y=floorY+(i+1)*riser;
+      deck(edge,edge+tread,y,'tread');
+      box(x,y+.006,z0+dir*(edge+.043),width*.83,.011,.045,M.light,stair);
+      // The feet traverse the actual tread heights rather than lerping along a ramp.
+      walk.push([x,y,z0+dir*(edge+.015)],[x,y,z0+dir*(edge+tread-.015)]);
+    }
+    for(const xx of [left,right]){
+      const beamX=xx+(x-xx)*.20;
+      rod([beamX,floorY-.20,z0+dir*begin],[beamX,floorY+rise/2-.20,z0+dir*(begin+flightRun)],.11,M.edge,stair);
+      rod([xx,floorY+1.02,z0+dir*begin],[xx,floorY+rise/2+1.02,z0+dir*(begin+flightRun)],.048,M.dark,stair);
+      for(let i=0;i<=treads;i+=4){let d=begin+i*tread,y=floorY+Math.min(treads,i+1)*riser;rod([xx,y,z0+dir*d],[xx,y+1,z0+dir*d],.022,M.bronze,stair);}
+    }
+    if(f===0){
+      const middle=start+rise/2,end=flightRun+landingLength;
+      deck(flightRun,end,middle,'mid-landing');
+      walk.push([x,middle,z0+dir*flightRun],[x,middle,z0+dir*end]);
+      rail([[left,z0+dir*flightRun],[left,z0+dir*end]],middle,stair);
+      rail([[right,z0+dir*flightRun],[right,z0+dir*end]],middle,stair);
+      const landing=box(x,middle/2,z0+dir*(flightRun+landingLength/2),.37,middle,.37,M.edge,stair);
+      landing.name='landing-support';
+    }
+  }
+  walk.push([x,finish,z1]);
+  return walk;
+}
 function init(){scene=new T.Scene();scene.background=null;renderer=new T.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.49;$('scene').append(renderer.domElement);renderer.domElement.tabIndex=0;renderer.domElement.setAttribute('aria-label','下沉广场立体模型。拖动旋转，滚轮缩放；也可使用预设视角按钮。');camera=new T.PerspectiveCamera(38,1,.1,350);controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;controls.maxPolarAngle=Math.PI/2-.03;controls.minDistance=15;controls.maxDistance=220;controls.target.set(0,1,0);controls.addEventListener('start',()=>{targetTween=null;if(typeof endTour==='function'&&document.body.classList.contains('touring'))endTour(false)});
 ambient=new T.HemisphereLight('#fcfff8','#bfc6ab',2.95);scene.add(ambient);sun=new T.DirectionalLight('#fff6e2',3.5);sun.position.set(-18,45,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-48,right:48,top:38,bottom:-38,near:1,far:120});sun.shadow.normalBias=.05;scene.add(sun);fill=new T.DirectionalLight('#e8f3ff',1.25);fill.position.set(30,20,-20);scene.add(fill);
 roofGroup=new T.Group();greenGroup=new T.Group();scene.add(roofGroup,greenGroup);
@@ -67,44 +110,34 @@ for(let i=0;i<inner.length-1;i++){if(i===4)continue;const a=inner[i],b=inner[i+1
 const dx=b[0]-a[0],dz=b[1]-a[1],nx=dz/l*3,nz=-dx/l*3;const back=[[...a],[...b],[b[0]+nx,b[1]+nz],[a[0]+nx,a[1]+nz]];slab(back,4.9,1.1,M.cream);rail([a,b],upperLevel);for(let j=0;j<Math.floor(l/3);j++){let t=(j+.5)/Math.floor(l/3),x=a[0]+dx*t,z=a[1]+dz*t;const o=box(x+nx*.25,1.7,z+nz*.25,1.1,2,.12,M.light);o.rotation.y=-Math.atan2(dz,dx)}}
 // Low cutaway outer edge reveals the sunken commercial level.
 for(let i=0;i<outer.length-1;i++){wallBetween(outer[i],outer[i+1],.85,.3,M.cream);}
-// One stair links to the upper level, the other passes through the terrace.
-steps([-21, 4], [-21, -5], 3, upperLevel, 30);
-const s2 = [4, 3], s0 = [7, 9];
-const stairRoute = [];
-const interp = t => [s2[0] + (s0[0] - s2[0]) * t, s2[1] + (s0[1] - s2[1]) * t];
-for (let i = 0; i <= 2; i++) {
-  const [x, z] = interp(i / 2);
-  stairRoute.push([x, i * terraceLevel / 2, z]);
-  if (i === 2) break;
-  const group = new T.Group();
-  scene.add(group);
-  const previousScene = scene;
-  scene = group;
-  steps([x,z], interp((i + 1) / 2), 3, terraceLevel / 2, 9);
-  scene = previousScene;
-  group.position.y = i * terraceLevel / 2;
-}
+// West stair reaches the real upper viewing platform; the central stair serves only the terrace.
+const westStair=stairLink({x:-21,z0:4.7,z1:-4,start:0,finish:upperLevel,width:3,landingLength:1.5,treads:15});
+const terraceStair=stairLink({x:13,z0:2.35,z1:10,start:0,finish:terraceLevel,width:3.3,landingLength:1.45,treads:8});
+const stairRoute=[[13,0,1.3],...terraceStair,[13,terraceLevel,11.65]];
+const westRoute=[[-21,0,5.3],...westStair,[-21,upperLevel,-5.7]];
 buildTerrace();
-const upperPlatform = [[-25, -7], [-21, -10], [-16, -10], [-16, -4], [-25, -4]];
-slab(upperPlatform, upperLevel - .35, .35, M.stone);
-rail([upperPlatform[3], upperPlatform[4]], upperLevel);
+const upperPlatform=[[-25,-7],[-21,-10],[-16,-10],[-16,-4],[-25,-4]];
+slab(upperPlatform,upperLevel-.35,.35,M.stone);
+// Leave clear gaps exactly the width of the opposing stairs.
+rail([[-25,-7],[-25,-4],[-22.5,-4]],upperLevel);
+rail([[-19.5,-4],[-16,-4],[-16,-10]],upperLevel);
 
 // Top trellis bands follow commercial fronts; the courtyard centre stays open.
-for(let i=0;i<inner.length-1;i++){if(i===4||i>10)continue;const a=inner[i],b=inner[i+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz);if(l<1)continue;const nx=-dz/l*3.8,nz=dx/l*3.8;wallBetween(a,b,.2,.24,M.wood,5.65,roofGroup);wallBetween([a[0]+nx,a[1]+nz],[b[0]+nx,b[1]+nz],.2,.24,M.wood,5.65,roofGroup);const count=Math.ceil(l/2.3);for(let j=0;j<count;j++){const t=j/count,u=(j+1)/count,A=[a[0]+dx*t,5.75,a[1]+dz*t],B=[a[0]+dx*u,5.75,a[1]+dz*u],C=[A[0]+nx,5.75,A[2]+nz],D=[B[0]+nx,5.75,B[2]+nz];rod(A,C,.09,M.wood,roofGroup);rod(A,D,.06,M.wood,roofGroup);rod(B,C,.06,M.wood,roofGroup);for(let q=1;q<5;q++){let f=q/5;rod([A[0]+dx/count*f,5.75,A[2]+dz/count*f],[C[0]+dx/count*f,5.75,C[2]+dz/count*f],.025,M.wood,roofGroup)}}}
-planter(-9,0,3.2,2.3,0,true);planter(1,1,4,2.5,0,true);planter(10,3,3.2,2.3,0,true);planter(-19,-1,2,2,0,true);planter(11,7,2.5,1.5,1.1,false);planter(10,8.9,2.7,1.5,2.1,true);
+for(let i=0;i<inner.length-1;i++){if(i<2||i===4||i>10)continue;const a=inner[i],b=inner[i+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz);if(l<1)continue;const nx=-dz/l*3.8,nz=dx/l*3.8;wallBetween(a,b,.2,.24,M.wood,5.65,roofGroup);wallBetween([a[0]+nx,a[1]+nz],[b[0]+nx,b[1]+nz],.2,.24,M.wood,5.65,roofGroup);const count=Math.ceil(l/2.3);for(let j=0;j<count;j++){const t=j/count,u=(j+1)/count,A=[a[0]+dx*t,5.75,a[1]+dz*t],B=[a[0]+dx*u,5.75,a[1]+dz*u],C=[A[0]+nx,5.75,A[2]+nz],D=[B[0]+nx,5.75,B[2]+nz];rod(A,C,.09,M.wood,roofGroup);rod(A,D,.06,M.wood,roofGroup);rod(B,C,.06,M.wood,roofGroup);for(let q=1;q<5;q++){let f=q/5;rod([A[0]+dx/count*f,5.75,A[2]+dz/count*f],[C[0]+dx/count*f,5.75,C[2]+dz/count*f],.025,M.wood,roofGroup)}}}
+planter(-9,0,3.2,2.3,0,true);planter(1,1,4,2.5,0,true);planter(10,3,3.2,2.3,0,true);planter(-17.6,-1,1.8,1.8,0,true);
 for(const [x,z] of [[-15,0],[-13,3],[-5,-1],[-4,3],[5,0],[8,-1],[16,2]])table(x,z);
-buildWalkers(stairRoute);
+buildWalkers(stairRoute,westRoute);
 for(const [x,z] of [[-12,1],[1,1],[10,3]]){let l=new T.PointLight('#ffd397',0,11,2);l.position.set(x,2.4,z);scene.add(l);lamps.push(l)}
 label('庭院商街', [10, 4.5, -10], 6);
 nodes[0].p = [-12, 6, -9];
-nodes[1].p = [5.5, 2, 6];
+nodes[1].p = [13, 2.5, 6.9];
 nodes[2].p = [1, 2.5, 1];
 nodes[3].p = [10, 3, -10];
 nodes[4].p = [-13, 1, 3];
-nodes[5].p = [-21, 6.8, -5];
+nodes[5].p = [-21, 7, -5.7];
 buildContext();setSeason('summer');liveResizeObserver=new ResizeObserver(resize);liveResizeObserver.observe($('scene'));resize();view('overview',false);animate();}
 function resize(){if(!renderer)return;const r=$('scene').getBoundingClientRect();renderer.setSize(r.width,r.height);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
-function view(key,smooth=true){if(!camera)return;const fit=Math.max(1,1.54/camera.aspect);const map={overview:{p:[(contextMode?38:30)*fit,(contextMode?50:38)*fit,(contextMode?68:51)*fit],t:[0,2.6,0]},front:{p:[3,14*fit,47*fit],t:[-2,2,0]},shops:{p:[21*fit,10*fit,28*fit],t:[8,2,-6]},terrace:{p:[32*fit,23*fit,-28*fit],t:[19,3.6,0]},top:{p:[0,90*fit,.3],t:[0,0,0]}};const v=map[key];document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===key));if(smooth)targetTween={start:performance.now(),a:camera.position.clone(),b:new T.Vector3(...v.p),ta:controls.target.clone(),tb:new T.Vector3(...v.t)};else{camera.position.set(...v.p);controls.target.set(...v.t);controls.update()}}
+function view(key,smooth=true){if(!camera)return;const fit=Math.max(1,1.54/camera.aspect);const map={overview:{p:[(contextMode?38:30)*fit,(contextMode?50:38)*fit,(contextMode?68:51)*fit],t:[0,2.6,0]},front:{p:[3,14*fit,47*fit],t:[-2,2,0]},stairs:{p:[12+17*fit,2.1+14*fit,6+22*fit],t:[12,2.1,6]},shops:{p:[21*fit,10*fit,28*fit],t:[8,2,-6]},terrace:{p:[32*fit,23*fit,-28*fit],t:[19,3.6,0]},top:{p:[0,90*fit,.3],t:[0,0,0]}};const v=map[key];document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===key));if(smooth)targetTween={start:performance.now(),a:camera.position.clone(),b:new T.Vector3(...v.p),ta:controls.target.clone(),tb:new T.Vector3(...v.t)};else{camera.position.set(...v.p);controls.target.set(...v.t);controls.update()}}
 let frameRequest=null;
 function animate(now=0){if(!isLive)return;frameRequest=requestAnimationFrame(animate);const dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;if(flowing)flowTime+=dt;updateWalkers();if(targetTween){let t=Math.min((performance.now()-targetTween.start)/(targetTween.duration||1400),1);t=t*t*(3-2*t);camera.position.lerpVectors(targetTween.a,targetTween.b,t);controls.target.lerpVectors(targetTween.ta,targetTween.tb,t);if(t>=1)targetTween=null}updateAtmosphere();controls.update();renderer.render(scene,camera);const r=$('scene').getBoundingClientRect();nodes.forEach(n=>{const v=new T.Vector3(...n.p).project(camera);n.el.style.left=(v.x*.5+.5)*r.width+'px';n.el.style.top=(-v.y*.5+.5)*r.height+'px';n.el.style.display=$('hotspots').checked&&v.z<1&&Math.abs(v.x)<.95&&Math.abs(v.y)<.9?'block':'none'})}
 function lighting(value){night=value;document.body.classList.toggle('night',night);$('day').classList.toggle('active',!night);$('night').classList.toggle('active',night);if(ambient){ambient.intensity=night?.86:2.95;sun.intensity=night?.33:3.5;fill.intensity=night?.55:1.25;M.glass.color.set(night?'#b9a985':'#c1d1c0');M.glass.emissive.set(night?'#8a6f36':'#000000');M.glass.emissiveIntensity=night?.35:0;M.light.emissiveIntensity=night?2:.15;lamps.forEach(l=>l.intensity=night?25:0);renderer.toneMappingExposure=night?1.26:1.49;sun.color.set(season==='autumn'?'#ffe0ad':season==='winter'?'#e3eeff':'#fff6e2')}}
@@ -136,8 +169,10 @@ slab([a,b,[b[0]+nx,b[1]+nz],[a[0]+nx,a[1]+nz]],-.3,.3,M.stone,contextGroup);
 storefront(a,b,name,contextGroup);wallBetween([a[0]+nx,a[1]+nz],[b[0]+nx,b[1]+nz],3.7,.18,M.cream,0,contextGroup);
 });
 const te=terraceEdge;
-for(let i=0;i<te.length-1;i++){const a=te[i],b=te[i+1];wallBetween(a,b,2.9,.16,M.glass,0,contextGroup);wallBetween(a,b,.4,.22,M.dark,2.9,contextGroup);box(a[0],1.45,a[1],.055,2.9,.055,M.bronze,contextGroup);}
-sign('退台下方',te[4],te[2],3.08,contextGroup);
+for(const span of [terraceLeft,terraceRight])for(let i=0;i<span.length-1;i++){
+ const a=span[i],b=span[i+1];wallBetween(a,b,2.9,.16,M.glass,0,contextGroup);wallBetween(a,b,.36,.22,M.dark,2.65,contextGroup);
+}
+sign('退台下方',[18,10],[22,8.5],2.9,contextGroup);
 storefront(inner[0],inner[1],'西侧入口');
 const a=inner[4],b=inner[5];storefront(a,b,'连廊入口');
 const dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz),n=[-dz/l*2.4,dx/l*2.4];
@@ -145,7 +180,7 @@ slab([a,b,[b[0]+n[0],b[1]+n[1]],[a[0]+n[0],a[1]+n[1]]],upperLevel - .35,.35,M.st
 nodes[7].p=[(a[0]+b[0])/2,5,(a[1]+b[1])/2];
 sign('咖啡',inner[2],inner[4],4.5);
 sign('餐饮',inner[8],inner[10],4.5,scene);
-sign('茶饮',te[3],te.at(-1),3.08,contextGroup);
+sign('茶饮',[22,8.5],te.at(-1),2.9,contextGroup);
 nodes[6].p=[(outer[9][0]+outer[11][0])/2,3,(outer[9][1]+outer[11][1])/2];
 for(let i=0;i<36;i++){const o=mesh(new T.IcosahedronGeometry(.14,0),mat('#efbdd0'),[-9+(rand()-.5)*2,1.12,(rand()-.5)*1.8],seasonGroup);o.userData.flower=true;}
 }
@@ -156,41 +191,31 @@ mesh(new T.SphereGeometry(.15,10,8),skin,[0,1.62,0],group);mesh(new T.CylinderGe
 const limbs=[];for(let i=0;i<4;i++){const pivot=new T.Group();pivot.position.set(i<2?(i? .12:-.12):(i===2?-.25:.25),i<2?.83:1.4,0);group.add(pivot);rod([0,0,0],[0,i<2?-.72:-.55,0],i<2?.065:.05,i<2?M.dark:cloth,pivot);limbs.push(pivot)}
 return {group,limbs};
 }
-function buildWalkers(stairRoute){
+function buildWalkers(stairRoute,westRoute){
 const routes=[
 [[-23,0,-6],[-18,0,-5],[-12,0,-5],[-3,0,-5],[6,0,-5],[13,0,-6],[21,0,-9]],
 [[-14,0,-2],[-10,0,-3],[-6,0,-3],[0,0,-3],[7,0,-4],[16,0,-6]],
-stairRoute,terraceWalkRoute];
-routes.forEach((route,r)=>{for(let i=0;i<(r===2?3:5);i++){const w=person(['#8b6650','#396359','#c2a36f','#66778a'][i%4]);w.route=route.map(p=>new T.Vector3(...p));w.lengths=[0];for(let j=1;j<route.length;j++)w.lengths.push(w.lengths[j-1]+w.route[j].distanceTo(w.route[j-1]));w.total=w.lengths.at(-1);w.offset=i*.19;w.speed=r===2?.55:.75;walkers.push(w)}});
+stairRoute,westRoute,terraceWalkRoute];
+routes.forEach((route,r)=>{for(let i=0;i<(r>=2?2:5);i++){const w=person(['#8b6650','#396359','#c2a36f','#66778a'][i%4]);w.route=route.map(p=>new T.Vector3(...p));w.lengths=[0];for(let j=1;j<route.length;j++)w.lengths.push(w.lengths[j-1]+w.route[j].distanceTo(w.route[j-1]));w.total=w.lengths.at(-1);w.offset=i*.19;w.speed=r===2||r===3?.52:.75;walkers.push(w)}});
 }
 function updateWalkers(){for(const w of walkers){const cycle=(flowTime*w.speed/w.total+w.offset)%2,back=cycle>1,u=back?2-cycle:cycle,d=u*w.total;let j=1;while(j<w.lengths.length-1&&w.lengths[j]<d)j++;const t=(d-w.lengths[j-1])/(w.lengths[j]-w.lengths[j-1]);w.group.position.lerpVectors(w.route[j-1],w.route[j],t);const delta=w.route[j].clone().sub(w.route[j-1]);w.group.rotation.y=Math.atan2(delta.x,delta.z)+(back?Math.PI:0);const swing=Math.sin(flowTime*7+w.offset*20)*.42;w.limbs.forEach((limb,i)=>limb.rotation.x=swing*(i%2?1:-1));}}
 
 function buildTerrace() {
-  const deck = [...terraceEdge, ...terraceBack.slice().reverse()];
-  slab(deck, terraceLevel - .25, .25, M.stone);
-  rail(terraceEdge, terraceLevel);
-  const [a, b] = [terraceBack[0], terraceBack.at(-1)];
-  for (const [start, end] of [[a, [1, 15]], [b, [28, 3]]]) {
-    const group = new T.Group();
-    scene.add(group);
-    const previousScene = scene;
-    scene = group;
-    steps(start, end, 2, upperLevel - terraceLevel, 16);
-    scene = previousScene;
-    group.position.y = terraceLevel;
-  }
-  const centers = [[11, 12], [16, 12], [21, 10]];
-  for (const [x,z] of centers) {
-    const group = new T.Group();
-    scene.add(group);
-    const previousScene = scene;
-    scene = group;
-    table(x,z);
-    scene = previousScene;
-    group.position.y = terraceLevel;
-  }
-  terraceWalkRoute = centers.map(([x,z]) => [x, terraceLevel, z]);
-  nodes[8].p = [16, terraceLevel + 1, 12];
+  const deck=[...terraceEdge,...terraceBack.slice().reverse()];
+  slab(deck,terraceLevel-.25,.25,M.stone);
+  rail(terraceLeft,terraceLevel);
+  rail(terraceRight,terraceLevel);
+  rail([terraceEdge[0],...terraceBack,terraceEdge.at(-1)],terraceLevel);
+  // Keep the mouth and the length of the platform clear; tables sit off the travel line.
+  const tables=[[9.3,13],[17.5,12.15],[21.2,10.7]];
+  const furniture=new T.Group();scene.add(furniture);
+  const parent=scene;
+  scene=furniture;
+  for(const [x,z] of tables)table(x,z);
+  scene=parent;
+  furniture.position.y=terraceLevel;
+  terraceWalkRoute=[[12,terraceLevel,11.2],[14.4,terraceLevel,11.65],[17.4,terraceLevel,10.55],[20,terraceLevel,9.65]];
+  nodes[8].p=[16,terraceLevel+1,11];
 }
 
 // Presentation controls share the existing model and do not alter source geometry.
@@ -198,7 +223,7 @@ let tourStep=0,tourTimer=null,tourPaused=false,tourWasNight=false;
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const chapters=[
 {title:'向下，<br>走进花园。',copy:'从城市界面，走进一座可以停留的庭院。',eyebrow:'01 / THE GARDEN',view:'overview'},
-{title:'沿阶而下，<br>走近花园。',copy:'楼梯、绿荫与平台，把上下层连接成一段旅程。',eyebrow:'02 / THE JOURNEY',view:'front'},
+{title:'沿阶而下，<br>走近花园。',copy:'拾级而上，在中段平台稍作停留，再走向开敞的退台。',eyebrow:'02 / THE JOURNEY',view:'stairs'},
 {title:'停在半途，<br>看见更多。',copy:'退台连接庭院与城市。停留、交谈，也留下一个镜头。',eyebrow:'03 / THE TERRACE',view:'terrace'},
 {title:'生活，<br>向外延伸。',copy:'商业与外摆沿庭院展开，让相遇发生在日常之间。',eyebrow:'04 / THE EVERYDAY',view:'shops'},
 {title:'灯亮之后，<br>花园未眠。',copy:'让暖光接续日光，留住夜晚的片刻。',eyebrow:'05 / AFTER HOURS',view:'overview'}
@@ -228,7 +253,7 @@ function updateAtmosphere(){
 // Preview images are offline renders of this public model. A GPU is optional.
 const previews=[
  ['overview','庭院全景','从上层看清下沉庭院的整体轮廓与周边关系。','下沉庭院公开模型的日景鸟瞰，显示楼梯、种植和下沉商业界面'],
- ['stairs','沿阶而下','楼梯和层层花池将人从上层引入庭院。','从斜上方看连接庭院与退台的楼梯和花池'],
+ ['stairs','沿阶而下','两段台阶由休息平台连接，走到顶便进入退台。','从斜上方看连接庭院与退台的楼梯和花池'],
  ['terrace','在退台停留','弧形平台提供停留与俯瞰的位置。','俯看庭院一侧的弧形退台、栏杆和步行连接'],
  ['life','庭院外摆','桌椅围绕花池和绿荫展开，连接商业与庭院。','下沉庭院里的桌椅、花池、乔木和格栅顶棚'],
  ['night','灯亮之后','暖光沿商业界面亮起，庭院转入夜景。','下沉庭院公开模型的夜景鸟瞰，暖灯照亮商业界面']
@@ -238,7 +263,7 @@ let previewIndex=0,previewTimer=null;
 function selectPreview(i){
  previewIndex=i;
  const [file,title,caption,alt]=previews[i];
- $('previewImage').src='previews/'+file+'.webp?v=live-clean-2';$('previewImage').alt=alt;
+ $('previewImage').src='previews/'+file+'.webp?v=stair-flow-3';$('previewImage').alt=alt;
  const image=$('previewImage');image.classList.remove('preview-change');void image.offsetWidth;image.classList.add('preview-change');
  $('previewTitle').textContent=title;$('previewCaption').textContent=caption;
  $('previewTag').textContent='0'+(i+1)+' / 05';
@@ -256,7 +281,7 @@ $('playPreview').addEventListener('click',()=>{
  $('playPreview').textContent='Ⅱ 暂停预览';$('playPreview').setAttribute('aria-pressed','true');
  $('previewDescription').setAttribute('aria-live','off');selectPreview(0);
  // Prefetch only after opting into the sequence.
- previews.slice(1).forEach(([file])=>{const asset=new Image();asset.src='previews/'+file+'.webp?v=live-clean-2';});
+ previews.slice(1).forEach(([file])=>{const asset=new Image();asset.src='previews/'+file+'.webp?v=stair-flow-3';});
  previewTimer=setInterval(()=>{if(previewIndex===previews.length-1){stopPreview();return;}selectPreview(previewIndex+1);},2200);
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPreview()});

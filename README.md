@@ -2,7 +2,14 @@
 
 **Spatial Digital Showcase · 数字空间漫游**
 
+本 Skill 出自 [Spatial Digital Showcase · @JayceFan666](https://github.com/JayceFan666/spatial-digital-showcase)。如基于本 Skill 改编或转载，建议保留这条来源说明，便于使用者找到原版。
+
 [打开在线 Demo ↗](https://jaycefan666.github.io/spatial-digital-showcase/) · [下载工具包 ZIP ↓](https://github.com/JayceFan666/spatial-digital-showcase/archive/refs/heads/main.zip) · [使用方法](#在新项目中复用)
+
+[![原项目网页实截：庭院三维场景、导览标题、点位和页面控件](docs/previews/project-viewport.webp)](https://jaycefan666.github.io/spatial-digital-showcase/)
+
+原项目网页实截（品牌标识已移除），经许可展示，不属于代码 MIT 许可范围。在线 Demo 使用公开合成模型，与截图不是同一版本。  
+Screenshot of the original interactive site with branding removed, shown with permission and excluded from the code’s MIT license. The public demo uses a separate synthetic model.
 
 用浏览器带看商业空间、建筑、广场与展厅。即使空间还在筹开或改造，也可以先讲清入口、动线与使用场景，再让观众自由探索。
 
@@ -21,6 +28,17 @@ python3 -m http.server 8000 --directory docs
 ```
 
 访问 `http://localhost:8000`。实时模型与五张预览均由仓库提供，无需账户、API 密钥或外部资源。
+
+## 快速开始：复制这段提示词
+
+能读取仓库的 Codex 或其他工作代理，可以先让它阅读 [SKILL.md](skills/spatial-walkthrough/SKILL.md)。如果工具只能接收聊天文本，直接复制下面的提示词，再按需要附上允许提供的参考材料。
+
+```text
+请为【空间名称】制作一个在浏览器里可运行的三维带看 Demo，观众是【谁】，希望他们看懂【什么】。我会提供可用图纸、点位图、关键尺寸和特殊场景要求。如果能读取 skills/spatial-walkthrough/SKILL.md，请先按它工作；读不到就按下面做：
+1. 先梳理入口、楼层、楼梯与平台、主要动线及 3–5 个展示点位；区分资料所示和设计示意，缺失尺寸不要当作实测值。
+2. 做一个可旋转、缩放、点击点位的网页，安排从全貌到细节的导览。首屏直接展示空间，手机可操作，不支持 WebGL 时提供图文预览。
+3. 交付可本地运行的网页、依赖及运行说明。原始 CAD、内部图纸和未经许可的媒体留在本地，不上传到公共网页或仓库。
+```
 
 ## 在新项目中复用
 

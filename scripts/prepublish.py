@@ -18,13 +18,14 @@ CHECKS = {
 RULES = {name: re.compile(pattern, re.I) for name, pattern in CHECKS.items()}
 PRIVATE_COMPONENTS = {"private", "internal", "source-drawings", "construction", "archives"}
 
-# Only the visually reviewed public demo renders may bypass text scanning.
+# Only the visually reviewed public renders and approved original viewport may bypass text scanning.
 PUBLIC_PREVIEW_HASHES = {
-    "docs/previews/life.webp": "c280b3713d2eed0d61b6c596a4e9f1f6e9bad189bc723ed255bff25e7c338855",
-    "docs/previews/night.webp": "72227a4fd73d1e57de20007db13096966fa2bab24236346c88dbab7f54899329",
-    "docs/previews/overview.webp": "d30a54c4c513141148ca99b502dd12ad69183019bd69f8cac1eeb22c45d3f7b6",
-    "docs/previews/stairs.webp": "dc37c9f0c94df14057e4f9e4ecd5da0df37eff176335ffec4665edca269bd0a8",
-    "docs/previews/terrace.webp": "b1121decbf1be87ff5d64d6fb46e6b3bf36aaee5a71609ab81d1b3fa7f269fc8",
+    "docs/previews/life.webp": "6e54c4ca8e0f3ea286f1824df67832daf5e1bc46ae00be30411be3e6011ec694",
+    "docs/previews/night.webp": "8c251ef28fd4febe43ee56a35bf839e11dcd1c28f2d01ba0f47f928788582e68",
+    "docs/previews/overview.webp": "386401ae77f78b11fe42b98c36abf2c9bfa3c5784d64019c9348ae4ebeb5040d",
+    "docs/previews/project-viewport.webp": "19db003bad00afcfafcfb35530df560e3e76649404bd1d8eaf83a9527f6a8083",
+    "docs/previews/stairs.webp": "3bf11aec6329e89e1b9738644e60af4f9756ea53662de80eca3b84a8cc09606c",
+    "docs/previews/terrace.webp": "c77eede4bd72c9bf62c1ffe814983deb183e156375f59a82136bbfc14e3ad045",
 }
 
 CAD_HEADER = re.compile(rb"^(?:AC10\d\d|\s*0\s*SECTION\s*2\s*HEADER)")
