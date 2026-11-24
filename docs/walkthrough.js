@@ -238,7 +238,7 @@ let previewIndex=0,previewTimer=null;
 function selectPreview(i){
  previewIndex=i;
  const [file,title,caption,alt]=previews[i];
- $('previewImage').src='previews/'+file+'.webp?v=live-light-1';$('previewImage').alt=alt;
+ $('previewImage').src='previews/'+file+'.webp?v=live-clean-2';$('previewImage').alt=alt;
  const image=$('previewImage');image.classList.remove('preview-change');void image.offsetWidth;image.classList.add('preview-change');
  $('previewTitle').textContent=title;$('previewCaption').textContent=caption;
  $('previewTag').textContent='0'+(i+1)+' / 05';
@@ -256,7 +256,7 @@ $('playPreview').addEventListener('click',()=>{
  $('playPreview').textContent='Ⅱ 暂停预览';$('playPreview').setAttribute('aria-pressed','true');
  $('previewDescription').setAttribute('aria-live','off');selectPreview(0);
  // Prefetch only after opting into the sequence.
- previews.slice(1).forEach(([file])=>{const asset=new Image();asset.src='previews/'+file+'.webp?v=live-light-1';});
+ previews.slice(1).forEach(([file])=>{const asset=new Image();asset.src='previews/'+file+'.webp?v=live-clean-2';});
  previewTimer=setInterval(()=>{if(previewIndex===previews.length-1){stopPreview();return;}selectPreview(previewIndex+1);},2200);
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPreview()});
@@ -322,7 +322,7 @@ $('captureShot').addEventListener('click',()=>{
  },'image/png');
 });
 // Let the static model poster paint before attempting the initial GPU frame.
-if(location.hash!=='#case-reference')initialFrame=requestAnimationFrame(()=>{initialFrame=requestAnimationFrame(()=>{initialFrame=null;enterLive();});});
+initialFrame=requestAnimationFrame(()=>{initialFrame=requestAnimationFrame(()=>{initialFrame=null;enterLive();});});
 
 const instantLighting=lighting;lighting=function(value){if(!ambient || !sun || !fill){instantLighting(value);return;}const props=[[ambient,'intensity'],[sun,'intensity'],[fill,'intensity'],[renderer,'toneMappingExposure'],[M.light,'emissiveIntensity'],[M.glass,'emissiveIntensity'],...lamps.map(l=>[l,'intensity'])];const before=props.map(([o,k])=>o[k]);const colors=[M.glass.color,M.glass.emissive,sun.color],old=colors.map(c=>c.clone());instantLighting(value);if(reduceMotion)return;atmosphereTween={start:performance.now(),values:props.map(([o,k],i)=>{const b=o[k];o[k]=before[i];return[o,k,before[i],b]}),colors:colors.map((c,i)=>{const b=c.clone();c.copy(old[i]);return[c,old[i],b]})};};
 const instantSeason=setSeason;setSeason=function(key){const mats=[M.leaf,M.leaf2,M.leaf3],before=mats.map(m=>m.color.clone());instantSeason(key);if(!reduceMotion)foliageTween={start:performance.now(),items:mats.map((m,i)=>{const b=m.color.clone();m.color.copy(before[i]);return[m,before[i],b]})};};

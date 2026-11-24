@@ -18,9 +18,8 @@ CHECKS = {
 RULES = {name: re.compile(pattern, re.I) for name, pattern in CHECKS.items()}
 PRIVATE_COMPONENTS = {"private", "internal", "source-drawings", "construction", "archives"}
 
-# Only the visually reviewed public demo renders and the single cleared case visual may bypass text scanning.
+# Only the visually reviewed public demo renders may bypass text scanning.
 PUBLIC_PREVIEW_HASHES = {
-    "docs/previews/case-night.webp": "5497fe54f884cf8784dc0e2e8ba550e8e2a48df2a067d7f6d2b8d51fefd05c0a",
     "docs/previews/life.webp": "c280b3713d2eed0d61b6c596a4e9f1f6e9bad189bc723ed255bff25e7c338855",
     "docs/previews/night.webp": "72227a4fd73d1e57de20007db13096966fa2bab24236346c88dbab7f54899329",
     "docs/previews/overview.webp": "d30a54c4c513141148ca99b502dd12ad69183019bd69f8cac1eeb22c45d3f7b6",
