@@ -105,7 +105,8 @@ nodes[5].p = [-21, 6.8, -5];
 buildContext();setSeason('summer');new ResizeObserver(resize).observe($('scene'));resize();view('overview',false);animate();}
 function resize(){if(!renderer)return;const r=$('scene').getBoundingClientRect();renderer.setSize(r.width,r.height);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
 function view(key,smooth=true){let mobile=innerWidth<720;let fit=mobile?Math.max(1,1.4/camera.aspect):1;const map={overview:{p:[(contextMode?38:29)*fit,(contextMode?50:41)*fit,(contextMode?68:54)*fit],t:[2,4.5,0]},front:{p:[3,14*fit,47*fit],t:[-2,2,0]},shops:{p:[21*fit,10*fit,28*fit],t:[8,2,-6]},terrace:{p:[32*fit,23*fit,-28*fit],t:[19,3.6,0]},top:{p:[0,90*fit,.3],t:[0,0,0]}};const v=map[key];document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===key));if(!camera)return;if(smooth)targetTween={start:performance.now(),a:camera.position.clone(),b:new T.Vector3(...v.p),ta:controls.target.clone(),tb:new T.Vector3(...v.t)};else{camera.position.set(...v.p);controls.target.set(...v.t);controls.update()}}
-function animate(now=0){requestAnimationFrame(animate);const dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;if(flowing)flowTime+=dt;updateWalkers();if(targetTween){let t=Math.min((performance.now()-targetTween.start)/(targetTween.duration||1400),1);t=t*t*(3-2*t);camera.position.lerpVectors(targetTween.a,targetTween.b,t);controls.target.lerpVectors(targetTween.ta,targetTween.tb,t);if(t>=1)targetTween=null}updateAtmosphere();controls.update();renderer.render(scene,camera);const r=$('scene').getBoundingClientRect();nodes.forEach(n=>{const v=new T.Vector3(...n.p).project(camera);n.el.style.left=(v.x*.5+.5)*r.width+'px';n.el.style.top=(-v.y*.5+.5)*r.height+'px';n.el.style.display=$('hotspots').checked&&v.z<1&&Math.abs(v.x)<.95&&Math.abs(v.y)<.9?'block':'none'})}
+let frameRequest=null;
+function animate(now=0){if(!isLive)return;frameRequest=requestAnimationFrame(animate);const dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;if(flowing)flowTime+=dt;updateWalkers();if(targetTween){let t=Math.min((performance.now()-targetTween.start)/(targetTween.duration||1400),1);t=t*t*(3-2*t);camera.position.lerpVectors(targetTween.a,targetTween.b,t);controls.target.lerpVectors(targetTween.ta,targetTween.tb,t);if(t>=1)targetTween=null}updateAtmosphere();controls.update();renderer.render(scene,camera);const r=$('scene').getBoundingClientRect();nodes.forEach(n=>{const v=new T.Vector3(...n.p).project(camera);n.el.style.left=(v.x*.5+.5)*r.width+'px';n.el.style.top=(-v.y*.5+.5)*r.height+'px';n.el.style.display=$('hotspots').checked&&v.z<1&&Math.abs(v.x)<.95&&Math.abs(v.y)<.9?'block':'none'})}
 function lighting(value){night=value;document.body.classList.toggle('night',night);$('day').classList.toggle('active',!night);$('night').classList.toggle('active',night);if(ambient){ambient.intensity=night?.7:2.4;sun.intensity=night?.2:3.2;fill.intensity=night?.4:1;M.glass.color.set(night?'#b9a985':'#a8bab3');M.glass.emissive.set(night?'#8a6f36':'#000000');M.glass.emissiveIntensity=night?.35:0;M.light.emissiveIntensity=night?2:.15;lamps.forEach(l=>l.intensity=night?25:0);renderer.toneMappingExposure=night?1.15:1.3;sun.color.set(season==='autumn'?'#ffe0ad':season==='winter'?'#e3eeff':'#fff3db')}}
 $('day').onclick=()=>lighting(false);$('night').onclick=()=>lighting(true);$('roof').onchange=e=>{if(roofGroup)roofGroup.visible=e.target.checked};$('green').onchange=e=>{if(greenGroup)greenGroup.visible=e.target.checked};document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>view(b.dataset.view));$('reset').onclick=()=>view('overview');
 $('contextMode').onclick=()=>setContext(true);
@@ -223,6 +224,71 @@ function updateAtmosphere(){
  if(atmosphereTween){const v=atmosphereTween,t=Math.min(1,(performance.now()-v.start)/1100),u=t*t*(3-2*t);v.values.forEach(([obj,key,a,b])=>obj[key]=a+(b-a)*u);v.colors.forEach(([obj,a,b])=>obj.copy(a).lerp(b,u));if(t===1)atmosphereTween=null;}
  if(foliageTween){const v=foliageTween,t=Math.min(1,(performance.now()-v.start)/1000);v.items.forEach(([m,a,b])=>m.color.copy(a).lerp(b,t));if(t===1)foliageTween=null;}
 }
-try{init()}catch(e){console.error(e);$('fallback').style.display='block';$('startTour').disabled=true}
+
+// Preview images are offline renders of this public model. A GPU is optional.
+const previews=[
+ ['overview','庭院全景','从上层看清下沉庭院的整体轮廓与周边关系。','下沉庭院公开模型的日景鸟瞰，显示楼梯、种植和下沉商业界面'],
+ ['stairs','沿阶而下','楼梯和层层花池将人从上层引入庭院。','从斜上方看连接庭院与退台的楼梯和花池'],
+ ['terrace','在退台停留','弧形平台提供停留与俯瞰的位置。','俯看庭院一侧的弧形退台、栏杆和步行连接'],
+ ['life','庭院外摆','桌椅围绕花池和绿荫展开，连接商业与庭院。','下沉庭院里的桌椅、花池、乔木和格栅顶棚'],
+ ['night','灯亮之后','暖光沿商业界面亮起，庭院转入夜景。','下沉庭院公开模型的夜景鸟瞰，暖灯照亮商业界面']
+];
+const previewButtons=[...document.querySelectorAll('[data-preview]')];
+let previewIndex=0,previewTimer=null;
+function selectPreview(i){
+ previewIndex=i;
+ const [file,title,caption,alt]=previews[i];
+ $('previewImage').src='previews/'+file+'.webp';$('previewImage').alt=alt;
+ const image=$('previewImage');image.classList.remove('preview-change');void image.offsetWidth;image.classList.add('preview-change');
+ $('previewTitle').textContent=title;$('previewCaption').textContent=caption;
+ $('previewTag').textContent='0'+(i+1)+' / 05';
+ previewButtons.forEach((b,j)=>b.setAttribute('aria-pressed',String(i===j)));
+}
+
+function stopPreview(){
+ clearInterval(previewTimer);previewTimer=null;
+ $('playPreview').textContent='▷ 播放五幕预览';$('playPreview').setAttribute('aria-pressed','false');
+ $('previewDescription').setAttribute('aria-live','polite');
+}
+previewButtons.forEach((b,i)=>b.addEventListener('click',()=>{stopPreview();selectPreview(i)}));
+$('playPreview').addEventListener('click',()=>{
+ if(previewTimer!==null){stopPreview();return;}
+ $('playPreview').textContent='Ⅱ 暂停预览';$('playPreview').setAttribute('aria-pressed','true');
+ $('previewDescription').setAttribute('aria-live','off');selectPreview(0);
+ // Prefetch only after opting into the sequence.
+ previews.slice(1).forEach(([file])=>{const asset=new Image();asset.src='previews/'+file+'.webp';});
+ previewTimer=setInterval(()=>{if(previewIndex===previews.length-1){stopPreview();return;}selectPreview(previewIndex+1);},2200);
+});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPreview()});
+
+let isLive=false,liveReady=false;
+function exitLive(){
+ if(!isLive)return;
+ if(liveReady){endTour(false);closeDetails();$('settingsPanel').hidden=true;$('settingsToggle').setAttribute('aria-expanded','false');}
+ isLive=false;cancelAnimationFrame(frameRequest);frameRequest=null;document.body.classList.remove('live-view','night');
+ $('liveShell').hidden=true;$('showcase').hidden=false;$('enter3d').focus();
+}
+$('exit3d').addEventListener('click',exitLive);
+$('enter3d').addEventListener('click',()=>{
+ if(isLive)return;
+ stopPreview();isLive=true;document.body.classList.add('live-view');$('showcase').hidden=true;$('liveShell').hidden=false;
+ try{
+  if(!liveReady){
+   const probe=document.createElement('canvas').getContext('webgl2');
+   if(!probe)throw new Error('This browser does not expose WebGL 2.');
+   probe.getExtension('WEBGL_lose_context')?.loseContext();
+   init();liveReady=true;
+  }else{
+   document.body.classList.toggle('night',night);resize();frameRequest=requestAnimationFrame(animate);
+  }
+  $('graphicsStatus').hidden=true;$('exit3d').focus();
+ }catch(error){
+  renderer?.dispose();$('scene').textContent='';renderer=null;camera=null;controls=null;liveReady=false;exitLive();
+  $('graphicsStatus').textContent='当前浏览器未能启动实时 3D，仍可在下方切换五幕导览。';
+  $('graphicsStatus').hidden=false;
+  console.warn('3D unavailable:',error.message);
+ }
+});
+
 const instantLighting=lighting;lighting=function(value){if(!ambient || !sun || !fill){instantLighting(value);return;}const props=[[ambient,'intensity'],[sun,'intensity'],[fill,'intensity'],[renderer,'toneMappingExposure'],[M.light,'emissiveIntensity'],[M.glass,'emissiveIntensity'],...lamps.map(l=>[l,'intensity'])];const before=props.map(([o,k])=>o[k]);const colors=[M.glass.color,M.glass.emissive,sun.color],old=colors.map(c=>c.clone());instantLighting(value);if(reduceMotion)return;atmosphereTween={start:performance.now(),values:props.map(([o,k],i)=>{const b=o[k];o[k]=before[i];return[o,k,before[i],b]}),colors:colors.map((c,i)=>{const b=c.clone();c.copy(old[i]);return[c,old[i],b]})};};
 const instantSeason=setSeason;setSeason=function(key){const mats=[M.leaf,M.leaf2,M.leaf3],before=mats.map(m=>m.color.clone());instantSeason(key);if(!reduceMotion)foliageTween={start:performance.now(),items:mats.map((m,i)=>{const b=m.color.clone();m.color.copy(before[i]);return[m,before[i],b]})};};

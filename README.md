@@ -1,20 +1,32 @@
 # 空间数字展示与三维漫游 · Spatial Digital Showcase
 
-面向商业空间、建筑、零售门店、广场与展览的 AI 辅助 3D 网页展示工具包。当空间仍在筹开或改造中，可以用浏览器带看，先讲清动线、空间关系和使用场景，再让观众自行探索细节。
+**Spatial Digital Showcase · 数字空间漫游**
 
-AI-assisted 3D spatial presentation and digital walkthrough toolkit for commercial spaces, architecture, retail, plazas, and exhibitions. Launch the interactive demo, explore a five-scene guided tour, and reuse the camera, hotspot, visual direction, and production templates. To run locally, open `docs/index.html` in a WebGL-enabled browser.
+[打开在线 Demo ↗](https://jaycefan666.github.io/spatial-digital-showcase/) · [下载工具包 ZIP ↓](https://github.com/JayceFan666/spatial-digital-showcase/archive/refs/heads/main.zip) · [使用方法](#在新项目中复用)
 
-## 体验 Demo
+[![公开下沉庭院模型日景：从上层看楼梯、退台、架空格栅和种植](docs/previews/overview.webp)](https://jaycefan666.github.io/spatial-digital-showcase/)
 
-用支持 WebGL 的浏览器打开 [docs/index.html](docs/index.html) 的本地文件，或在仓库根目录启动静态服务器，再访问 `http://localhost:8000`。
+用浏览器带看商业空间、建筑、广场与展厅。即使空间还在筹开或改造，也可以先讲清入口、动线与使用场景，再让观众自由探索。
+
+An open toolkit for interactive 3D walkthroughs of retail, architecture, courtyards and exhibitions. Preview five viewpoints with no WebGL required, or open the live model to orbit the scene, inspect hotspots and change the atmosphere.
+
+## 五幕导览 / Five views
+
+庭院全景 → 楼梯入口 → 弧形退台 → 商业外摆 → 夜景。下面两幅画面与网页预览，均由公开 Demo 的合成模型离线渲染，并非原项目照片。
+
+| 03 · 弧形退台 / Terrace | 05 · 夜景 / After hours |
+| :---: | :---: |
+| [![从庭院侧上方俯瞰弧形退台与楼梯连接](docs/previews/terrace.webp)](https://jaycefan666.github.io/spatial-digital-showcase/) | [![从同一视角看公开模型的夜景与暖色灯光](docs/previews/night.webp)](https://jaycefan666.github.io/spatial-digital-showcase/) |
+
+**在线：** 进入 Demo 后，可切换或连续播放五幕预览，也可点「进入实时 3D」。实时 3D 支持拖动旋转、缩放、热点说明、日夜和季节切换。
+
+**本地：** 下载并解压工具包，在支持 WebGL 2 的浏览器中打开 `docs/index.html`，或在仓库根目录运行：
 
 ```sh
 python3 -m http.server 8000 --directory docs
 ```
 
-点击「开始空间导览」，依次看全景、楼梯、退台、商业外摆和夜景。也可以拖动旋转、滚动或双指缩放，再点选场景节点。「氛围设置」支持季节、人流、顶棚、绿化和点位开关。导览支持手动翻幕、暂停和回到自由探索。
-
-Demo 沿用实际项目网页的交互界面、镜头叙事和通用建模代码。公开版庭院轮廓、退台曲线和层高使用重新编写的展示坐标。场景和依赖都由仓库本地提供，页面无需账户或 API 密钥。部署 GitHub Pages 时可选 `main` 分支的 `/docs` 目录。
+访问 `http://localhost:8000`。实时模型与五张预览均由仓库提供，无需账户、API 密钥或外部资源。
 
 ## 在新项目中复用
 
@@ -28,7 +40,13 @@ Demo 沿用实际项目网页的交互界面、镜头叙事和通用建模代码
 
 ## 需要准备的材料
 
-提供用途、目标观众、空间关系、必讲点位、视觉参考和交付方式。如果已有可公开的照片、效果图或展示级模型，注明出处、许可与可用范围。项目图纸可作为本地建模的可选私有输入。每个项目的几何、材质和机位都需要按空间重新制作并核对。本工具包提供展示流程、交互示例和模板，CAD 自动转网页不在功能范围内。
+**核心材料**：准备能说明空间的图纸（如 CAD、平面或剖面图）、关键点位图片、关键距离和高度，以及特殊场景或展示要求（如曲线退台、夜景、希望重点呈现的节点）。原始图纸仅用于本地制作，不随成品发布。
+
+**制作说明**：再简要写下用途、目标观众、空间关系、必讲点位、视觉参考和交付方式。这些信息是为了让 AI 更准确地理解这次网页要解决什么问题，也帮制作者自己理清要展示什么、为什么展示、怎样展示。
+
+**Inputs**: plans or sections, key-view images, principal measurements, and distinctive scenes or presentation requirements. Add a short brief covering the purpose, audience, spatial relationships, priority viewpoints, visual references, and delivery format.
+
+对外使用的素材请标明出处、许可和可用范围。工具包提供可复用的展示流程、交互和模板，不会自动把 CAD 转成网页。新项目的几何、材质和机位需按实际空间重新制作。
 
 ## 隐私与发布
 

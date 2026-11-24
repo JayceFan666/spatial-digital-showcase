@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check the Git index by default, or inspect the release tree with --tree."""
 import argparse
+import hashlib
 import re
 import subprocess
 from pathlib import Path
@@ -16,6 +17,15 @@ CHECKS = {
 }
 RULES = {name: re.compile(pattern, re.I) for name, pattern in CHECKS.items()}
 PRIVATE_COMPONENTS = {"private", "internal", "source-drawings", "construction", "archives"}
+
+# Only the five visually reviewed renders of the public demo may bypass text scanning.
+PUBLIC_PREVIEW_HASHES = {
+    "docs/previews/life.webp": "4fd6292dec0b025a5a9e607881182b747c48265fbb835595caf896112670dc92",
+    "docs/previews/night.webp": "0554aa439f685f4fce95783abd855f42aa58f255e0af29fa4a4594bf1a5332aa",
+    "docs/previews/overview.webp": "512b52738fb6cb35609458fe329803d4d55c18f7778b73daadf130607ce7f3aa",
+    "docs/previews/stairs.webp": "8dc82b0bad5201f6fb840764531951644170f1c03133b72fd106b337217a77ed",
+    "docs/previews/terrace.webp": "1438763a1b338d2e170b0984a3167a33ec9cbef954d1819ef1ca5091612513d1",
+}
 CAD_HEADER = re.compile(rb"^(?:AC10\d\d|\s*0\s*SECTION\s*2\s*HEADER)")
 
 
@@ -47,6 +57,11 @@ def inspect(path, data):
     if (set(part.lower() for part in name.parts) & PRIVATE_COMPONENTS
             or any(part.startswith(".env") for part in name.parts)):
         return ["私有文件或目录"]
+    if path in PUBLIC_PREVIEW_HASHES:
+        is_webp = data.startswith(b"RIFF") and data[8:12] == b"WEBP"
+        if is_webp and hashlib.sha256(data).hexdigest() == PUBLIC_PREVIEW_HASHES[path]:
+            return []
+        return ["公开预览文件已变更，须复核内容和元数据后更新文件摘要"]
     if name.suffix.lower() not in TEXT_SUFFIXES and name.name not in {".gitignore", "LICENSE", ".nojekyll"}:
         return ["不在文本发布清单内，先审核文件类型及内容"]
     if CAD_HEADER.search(data) or data.startswith((b"%PDF-", b"PK\x03\x04")) or b"\0" in data:
