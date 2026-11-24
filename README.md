@@ -72,17 +72,7 @@ https://github.com/JayceFan666/spatial-digital-showcase/blob/main/skills/spatial
 
 对外使用的素材请标明出处、许可和可用范围。工具包提供可复用的展示流程、交互和模板，不会自动把 CAD 转成网页。新项目的几何、材质和机位需按实际空间重新制作。
 
-## 隐私与发布
-
-原始 CAD、项目源图纸、带尺寸的平面或剖面截图、内部资料及录屏始终留在本地，严禁提交到仓库。发布前还要检查注释、路径、链接、媒体元数据、资源包和模型属性。包含精确原图坐标、标高、尺寸表或专有图纸数据的模型应留在私有工作区。来源或公开权限存疑的资产先搁置。
-
-```sh
-python3 scripts/prepublish.py --tree
-# git add 经过审核的发布文件后，再检查即将提交的内容
-python3 scripts/prepublish.py
-```
-
-脚本筛查常见的私有文件、路径、内嵌资源和密钥。图片与视频的画面、模型数据及发布授权需要人工复核。
+复用时，原始 CAD、内部图纸和未经授权的素材请留在本地；对外只发布确认可公开的内容。准备上线时，可参照[发布检查表](skills/spatial-walkthrough/references/review.md#发布前检查维护者)。
 
 **检索关键词**　空间数字展示、三维空间漫游、数字带看、商业空间可视化、建筑交互展示、展览导览、热点标注、WebGL、Three.js、3D walkthrough、guided tour。
 
