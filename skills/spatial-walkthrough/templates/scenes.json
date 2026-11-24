@@ -1,0 +1,13 @@
+{
+  "units": "arbitrary presentation units",
+  "scenes": [
+    {"id": "overview", "title": "建立方位", "camera": [20, 24, 28], "target": [0, 2, 0], "holdSeconds": 6},
+    {"id": "entry", "title": "沿主入口进入", "camera": [2, 7, 18], "target": [-3, 2, 0], "holdSeconds": 6},
+    {"id": "terrace", "title": "看清楼层连接", "camera": [16, 10, -12], "target": [4, 3, 2], "holdSeconds": 7},
+    {"id": "activity", "title": "看空间如何使用", "camera": [11, 5, 15], "target": [5, 2, -4], "holdSeconds": 7},
+    {"id": "after-hours", "title": "切换夜间氛围", "camera": [20, 24, 28], "target": [0, 2, 0], "holdSeconds": 6, "lighting": "night"}
+  ],
+  "hotspots": [
+    {"id": "landing", "label": "休息平台", "position": [4, 3, 2], "description": "连接楼梯与退台，也留出短暂停留的位置。"}
+  ]
+}
